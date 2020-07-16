@@ -1,4 +1,4 @@
-# SpectroscoPY
+# PySpec
 
 This repository holds a set of python functions designed to aid in the analysis of experimental and simulated UV-Vis spectra.
 

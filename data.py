@@ -155,8 +155,8 @@ def import_data(fileName):
         if hasAlpha == False:
             for i in range(len(line)):
                 if line[i].isspace():
-                    x_val = float(line[:i])
-                    y_val = float(line[i + 1:])
+                    x_val = float(line[:i].replace(',', ''))
+                    y_val = float(line[i + 1:].replace(',', ''))
                     x.append(x_val)
                     y.append(y_val)
     return Data(x, y)

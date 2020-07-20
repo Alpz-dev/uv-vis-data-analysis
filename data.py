@@ -8,7 +8,7 @@ class Data(object):
     def __init__(self, x, y):
         self.x = np.array(x)
         self.y = np.array(y)
-        self.peaks = []
+        self.peaks = set()
 
     # Very basic plotting to test data changes
     def plot(self, figure, title='', start_x=None, end_x=None):
@@ -111,33 +111,40 @@ class Data(object):
         vals = index[measures.index(min(measures))]
         return self.savgol_filter(vals[0], vals[1])
 
+    def hasDeltaOverlap(self, i, delta):
+        overlapPeak = 0
+        for peak in self.peaks:
+            if (self.x[i] < peak + delta) and (peak - delta < self.x[i]):
+                return True
+        return False
+
+
+
     # Recursively finds the maximum y value within a given delta of an x value
-    def isMaxinDelta(self, i, delta=200):
-        first = 0
-        last = len(self.x) - 1
-        start = max(first, i - delta)
-        end = min(last, i + delta)
-        Max = self.y[i]
-        print(Max, 'CHECKING', self.x[i], 'DELTA', (start, end))
-        for j in range(start, end):
-            if Max < self.y[j]:
-                Max = self.y[j]
-                print('RECURSE', Max, self.x[j])
-                return self.isMaxinDelta(j, delta=delta)
-        print(self.x[i], 'SUCCESS')
-        self.peaks.append(self.x[i])
-        return True
+    def isMaxinDelta(self, i, delta=15):
+        if not(self.hasDeltaOverlap(i, delta)):
+            first = 0
+            last = len(self.x) - 1
+            start = max(first, i - delta)
+            end = min(last, i + delta)
+            Max = self.y[i]
+            for j in range(start, end):
+                if Max < self.y[j]:
+                    Max = self.y[j]
+                    return self.isMaxinDelta(j, delta=delta)
+            self.peaks.add(self.x[i])
 
     # WIP
     # Locates peaks using a smooth 1st derivative
     def findLocalMaxima(self):
         deriv1 = self.savgol_filter(35, 2, deriv=1)
-        for i in range(len(deriv1.y) - 1):
+        for i in range(1, len(deriv1.y) - 1):
+            y0 = deriv1.y[i - 1]
             y1 = deriv1.y[i]
             y2 = deriv1.y[i + 1]
-            if (y1 > 0 and y2 < 0) and (self.isMaxinDelta(i)):
-                # self.peaks.append(self.data['X'][i])
-                pass
+            if ((y1 > 0 and y2 < 0) or (y0 > 0 and y1 < 0)):
+                self.isMaxinDelta(i)
+        return self.peaks
 
 
 # Imports *.txt UV-Vis data from the Agilent ChemStation v10.0.1 software for Windows XP

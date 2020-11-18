@@ -7,7 +7,7 @@ Available Analysis Tools:
 * Optimized smoothing of noisy data
 * Range limits across all tools
 * Plotting functions via matplotlib
-* Normalization [WIP]
+* Normalization
 * Deconvolution [WIP]
 * Reaction rate analysis [WIP]
 * Batch analysis [WIP]

@@ -1,6 +1,7 @@
 import random
 import sys
 import csv
+import string
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -63,7 +64,7 @@ class Data(object):
         return current_total
 
     # Very basic plotting to test data changes
-    def plot(self, figure, title='', label = '', start_x=None, end_x=None):
+    def plot(self, figure, title='', label = '', color = 'black', start_x=None, end_x=None):
         try:
             tmp_y_data = self.y[int(start_x - self.x[0]):int((end_x + 1) - self.x[0])]
         except TypeError:
@@ -74,7 +75,7 @@ class Data(object):
             tmp_x_data = self.x
         plt.figure(figure)
         plt.title(str(title))
-        return plt.plot(tmp_x_data, tmp_y_data, label = label)
+        return plt.plot(tmp_x_data, tmp_y_data, label = label, linewidth = 1.5, color = color)
 
     def plot3D(self, zVal, figure, title='', label = '', start_x=None, end_x = None):
         try:
@@ -178,16 +179,20 @@ class Data(object):
                 return int + 1
 
     def normalize(self, start_x = None, end_x = None):
+        print(self.x[0])
         try:
             start_i = int(start_x - self.x[0])
             end_i = int((end_x + 1) - self.x[0])
         except TypeError:
+            print("TYPE")
             start_i = 0
             end_i = len(self.x) - 1
         max_y_val = 0
+        print(start_i, end_i + 1)
         for i in range(start_i, end_i + 1):
             if self.y[i] >= max_y_val:
                 max_y_val = self.y[i]
+        print(max_y_val, i, self.x[i] - 190)
         y_vals = []
         x_vals = list(self.x)
         for y in self.y:
@@ -412,12 +417,24 @@ class Data(object):
             self.bands.append(data)
             data.plot(1)
 
-
+def import_csv(file_name):
+    file = open(file_name, 'r')
+    data = csv.reader((line.replace('\0', '') for line in file), delimiter = ",")
+    x = []
+    y = []
+    for line in data:
+        if line != []:
+            if line[0].isnumeric():
+                x.append(float(line[0]))
+                y.append(float(line[1]))
+    return Data(x, y)
 
 
 # Imports *.txt UV-Vis data from the Agilent ChemStation v10.0.1 software for Windows XP
 # Creates a data obj containing x and y values from the file
 def import_data(file_name, instr = ""):
+    if file_name.endswith(".CSV"):
+        return import_csv(file_name)
     data = open(file_name, "r")
     x = []
     y = []
@@ -436,27 +453,22 @@ def import_data(file_name, instr = ""):
                     y.append(y_val)
     return Data(x, y, file_name = file_name, instrument = instr)
 
-def import_csv(file_name):
-    file = open(file_name, 'r')
-    data = csv.reader((line.replace('\0', '') for line in file), delimiter = ",")
-    x = []
-    y = []
-    for line in data:
-        if line != []:
-            if line[0].isnumeric():
-                x.append(float(line[0]))
-                y.append(float(line[1]))
-    return Data(x, y)
 
-data = import_csv("test data/10-17-2020_UV-VIS_NI-PET_SYNTH-09-01-2020+09-02-2020_IN DCM_PTLC_03.CSV")
-data2 = import_csv("test data/10-17-2020_UV-VIS_NI-PET_SYNTH-09-01-2020+09-02-2020_IN DCM_PTLC_02.CSV")
-data3 = import_csv("test data/10-17-2020_UV-VIS_NI-PET_SYNTH-09-01-2020+09-02-2020_IN DCM_PTLC_01.CSV")
 
-data.plot(1, start_x = 300, end_x = 800)
-data2.plot(1, start_x = 300, end_x = 800)
-data3.plot(1, start_x = 300, end_x = 800)
-plt.xlabel("Wavelength (nm)")
-plt.ylabel("Abs")
-plt.legend(["Ni6", "Ni5", "Ni4"])
 
-plt.show()
+
+def pretty_plot(listOfData, xaxis_label, yaxis_label, listOfLabels, xlim = (300, 800), xsize = 6, ysize = 5, listOfColors = ["black"]):
+    plt.figure(figsize = (xsize, ysize))
+    for dataset, label, color in zip(listOfData, listOfLabels, listOfColors):
+        dataset.plot(1, label = label, color = color)
+        plt.xlabel(xaxis_label, fontsize = 14)
+        plt.ylabel(yaxis_label, fontsize = 14)
+        plt.legend(loc = "best", fontsize = 14)
+
+    plt.xlim(xlim)
+
+
+def read_dat(file_name):
+    file = open(file_name, "rb")
+    for byte in file.read().splitlines():
+        print(byte)

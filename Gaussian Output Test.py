@@ -65,7 +65,7 @@ ax.plot(x,gE,"--r")
 
 
 for energy,osc_strength in zip(energies,osc):
-    ax.plot((energy,energy),(0,osc_strength*2),c="r")
+    ax.plot((energy,energy),(0,osc_strength*2.5),c="r")
 
 ax.set_xlabel("Wavelength (nm)",fontsize=16)
 ax.xaxis.set_tick_params(labelsize=14,width=1.5)
@@ -76,6 +76,16 @@ ax.set_xlim(300,800)
 ax.set_ylim(0, 0.75)
 ax.set_ylabel("Abs/Osc. Strength (AU)",fontsize=16)
 plt.tight_layout()
+plt.xlim((300, 800))
+plt.ylim((0, 0.75))
+
+plt.xlabel("Wavelength (nm)", fontweight = "bold", fontsize = 14)
+plt.ylabel("Abs/Osc. Strength", fontweight= "bold", fontsize = 14)
+plt.xticks([300, 400, 500, 600, 700, 800], weight = "bold", fontsize = 12)
+plt.yticks([])
+plt.legend(["A", "B"], loc = "best", fontsize = 14)
+
+plt.show()
 
 
 
